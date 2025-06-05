@@ -81,11 +81,10 @@ BEGIN
     
     IF v_id_prod IS NOT NULL THEN
         IF v_estoque_atual >= p_quantidade THEN
-            -- Insere item no pedido
+        
             INSERT INTO item (id_ped, id_prod, qtd)
             VALUES (p_id_pedido, v_id_prod, p_quantidade);
 
-            -- Atualiza o estoque
             UPDATE produto
             SET estoque = estoque - p_quantidade
             WHERE id = v_id_prod;
@@ -101,7 +100,7 @@ END;
 DELIMITER ;
 
 DELIMITER //
-
+SET autocommit=0;
 CREATE PROCEDURE registrar_cliente(
     IN r_nome VARCHAR(200),
     IN r_email VARCHAR(200)
@@ -116,13 +115,11 @@ DELIMITER ;
 
 START TRANSACTION;
 
--- Novo pedido
 INSERT INTO pedido (data_pedido, valor_total, id_cli)
 VALUES (CURDATE(), 350.00, 1);
 
 SET @id_pedido = LAST_INSERT_ID();
 
--- Adiciona os itens usando a nova procedure
 CALL registrar_item(@id_pedido, 'mesa', 1);
 CALL registrar_item(@id_pedido, 'cadeira', 3);
 
